@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    
+     'cloudinary',
+    'cloudinary_storage',
     # Custom apps
     'api',
 ]
@@ -69,46 +70,42 @@ WSGI_APPLICATION = 'cafe_backend.wsgi.application'
 
 # Database Setup
 # Try connecting to PostgreSQL. If it fails, fall back to SQLite automatically.
-DB_NAME = 'cafe_db'
-DB_USER = 'postgres'
-DB_PASSWORD = 'postgres'
-DB_HOST = 'localhost'
-DB_PORT = '5432'
+
+from pathlib import Path
+from dotenv import load_dotenv
+import dj_database_url
+import os
+
+load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise Exception("DATABASE_URL environment variable is not set")
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-    }
+    "default": dj_database_url.parse(DATABASE_URL)
 }
 
-try:
-    import psycopg2
-    # Simple check to see if database can be resolved
-    conn = psycopg2.connect(
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=DB_PORT,
-        connect_timeout=2
-    )
-    conn.close()
-    print("DJANGO SETTINGS: Successfully connected to PostgreSQL!")
-except Exception as e:
-    print(f"DJANGO SETTINGS WARNING: PostgreSQL connection failed: {e}")
-    print("Falling back to local SQLite database: db.sqlite3")
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+#cloudnary config
+import os
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+STATIC_URL = "static/"
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
