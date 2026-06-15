@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/';
-
+const API_BASE_URL = 'https://cafe-2-h7ro.onrender.com/api/'  // Default to localhost if not set
+// const API_BASE_URL = 'http://localhost:5000/api/'; // Default to localhost if not set
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
