@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
 from .views import (
     CategoryViewSet, FoodItemViewSet, TableViewSet, CartViewSet,
     OrderViewSet, InventoryViewSet, StaffViewSet, CouponViewSet,
-    ReviewViewSet, AnalyticsViewSet, AuthViewSet
+    ReviewViewSet, AnalyticsViewSet, AuthViewSet, health
 )
 
 router = DefaultRouter()
@@ -24,8 +24,11 @@ router.register('analytics', AnalyticsViewSet, basename='analytics')
 router.register('auth', AuthViewSet, basename='auth')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Health Check Endpoint
+    path('health/', health, name='health'),
     # JWT Auth Endpoints
     path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Router URLs
+    path('', include(router.urls)),
 ]

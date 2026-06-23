@@ -9,6 +9,7 @@ from django.db import connection
 from django.core.exceptions import ValidationError
 from datetime import timedelta
 import decimal
+import time
 
 from .models import (
     Category, FoodItem, Table, Cart, CartItem, Order, OrderItem,
@@ -20,7 +21,33 @@ from .serializers import (
     PaymentSerializer, InventorySerializer, StaffSerializer, CouponSerializer,
     ReviewSerializer, UserSerializer
 )
+from django.http import JsonResponse
+from django.db import connection
 
+def health(request):
+    start_time = time.time()
+    
+    # Check database connectivity
+    db_status = "ok"
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
+    response_time = (time.time() - start_time) * 1000  # Convert to ms
+    
+    health_data = {
+        "status": "ok" if db_status == "ok" else "degraded",
+        "timestamp": timezone.now().isoformat(),
+        "database": {
+            "status": db_status
+        },
+        "response_time_ms": round(response_time, 2)
+    }
+    
+    return JsonResponse(health_data)
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow admins to edit objects.
